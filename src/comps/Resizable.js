@@ -1,23 +1,17 @@
 import React,{useState, useRef, useEffect} from "react";
 import Bounds from "../classes/Bounds";
+import eventBus from "../eventbus/EventBus";
 
 export default function Resizable(props){
 
-    useEffect(()=>{
-        
-        bounds.setLeft(props.cvs.current.getBoundingClientRect().left+((props.cvs.current.width-props.imgwidth)/2));
-        bounds.setRight(document.documentElement.clientWidth-props.cvs.current.getBoundingClientRect().right+((props.cvs.current.width-props.imgwidth)/2));
-        bounds.setTop(props.cvs.current.getBoundingClientRect().top);
-        bounds.setBottom(document.documentElement.clientWidth-props.cvs.current.getBoundingClientRect().bottom);
-        console.log(bounds);
-
-    },[]);
-
-    const id = 'box';
-    const bounds = new Bounds();
+    
+    const id = `${props.id}--box`;
+    const textboxId = `${props.id}--textbox`;
+    
     const resizable = useRef(null);
     const test = useRef(null);
-
+    
+    const [bounds, setBounds] = useState(null);
     const [initialPosX,   setInitialPosX] = useState(null);
     const [initialPosY,   setInitialPosY] = useState(null);
     const [initialWidth, setInitialWidth] = useState(null);
@@ -30,10 +24,19 @@ export default function Resizable(props){
     const [right, setRight] = useState(null);
     const [top, setTop] = useState(null);
     const [bottom, setBottom] = useState(null);
-  
+    
+    useEffect (()=>{
+
+        const bds = new Bounds();
+        bds.setLeft((props.cvs.current.getBoundingClientRect().left+window.scrollX)+((props.cvs.current.width-props.imgwidth)/2));
+        bds.setRight((document.documentElement.clientWidth-props.cvs.current.getBoundingClientRect().right+window.scrollX)+((props.cvs.current.width-props.imgwidth)/2));
+        bds.setTop(props.cvs.current.getBoundingClientRect().top+window.scrollY);
+        bds.setBottom(document.documentElement.clientHeight-(props.cvs.current.getBoundingClientRect().bottom+window.scrollY));
+        setBounds(bds);
+    },[]);
+
+
     const initial = (e) => {
-        
-        
         
         setOffsetLeft(e.clientX-test.current.getBoundingClientRect().left);
         setOffsetTop(e.clientY-test.current.getBoundingClientRect().top);
@@ -53,16 +56,21 @@ export default function Resizable(props){
     const drag = (e) => {
         if (e.screenX ===0) return;
 
+
+
         
+        if(bounds.getLeft() < e.pageX-offsetLeft && bounds.getRight() < document.documentElement.clientWidth-e.pageX-offsetRight){
+            test.current.style.left = `${e.pageX-offsetLeft}px`;
+            test.current.style.right = `${document.documentElement.clientWidth-e.pageX-offsetRight}px`;
+        }
         
-        test.current.style.left = `${e.pageX-offsetLeft}px`;
-        test.current.style.top = `${e.pageY-offsetTop}px`;
-        test.current.style.right = `${document.documentElement.clientWidth-e.pageX-offsetRight}px`;
-        test.current.style.bottom = `${document.documentElement.clientHeight-e.pageY-offsetBottom}px`;
+        if(bounds.getTop() < e.pageY-offsetTop && bounds.getBottom() < document.documentElement.clientHeight-e.pageY-offsetBottom){
+            test.current.style.top = `${e.pageY-offsetTop}px`;
+            test.current.style.bottom = `${document.documentElement.clientHeight-e.pageY-offsetBottom}px`;
+        }
         
-    }
-    const dragEnd = (e) => {
-        console.log("right:"+test.style.right+" left:"+test.style.left+" top:"+test.style.top+" bottom:"+test.style.bottom);
+        eventBus.dispatch('addtext');
+        
     }
     
     const resizeE = (e) => {
@@ -74,7 +82,9 @@ export default function Resizable(props){
 
         if (newSize<20) return;
 
-        test.current.style.left = `${left}px`;
+        if (bounds.getRight() >= document.documentElement.clientWidth-e.pageX-offsetRight) return;
+
+        test.current.style.left = `${left+window.scrollX}px`;
         test.current.style.right = `${document.documentElement.clientWidth-e.pageX-offsetRight}px`;
 
         resizable.current.style.width = `${newSize-2}px`;
@@ -89,8 +99,10 @@ export default function Resizable(props){
 
         if (newSize<20) return;
 
+        if (bounds.getLeft() >= e.pageX-offsetLeft) return;
+
         test.current.style.left = `${e.pageX-offsetLeft}px`;
-        test.current.style.right = `${right}px`;
+        test.current.style.right = `${right-window.scrollX}px`;
 
         resizable.current.style.width = `${newSize-2}px`;
         
@@ -103,9 +115,11 @@ export default function Resizable(props){
         let newSize = parseInt(initialHeight) + parseInt((initialPosY-e.clientY));
 
         if (newSize<20) return;
+
+        if (bounds.getTop() >= e.pageY-offsetTop) return;
         
         test.current.style.top = `${e.pageY-offsetTop}px`;
-        test.current.style.bottom = `${bottom}px`;
+        test.current.style.bottom = `${bottom-window.scrollY}px`;
 
         resizable.current.style.height = `${newSize-2}px`;
         
@@ -119,7 +133,9 @@ export default function Resizable(props){
 
         if (newSize<20) return;
 
-        test.current.style.top = `${top}px`;
+        if (bounds.getBottom() >= document.documentElement.clientHeight-e.pageY-offsetBottom) return;
+
+        test.current.style.top = `${top+window.scrollY}px`;
         test.current.style.bottom = `${document.documentElement.clientHeight-e.pageY-offsetBottom}px`;
 
         resizable.current.style.height = `${newSize-2}px`;
@@ -134,14 +150,14 @@ export default function Resizable(props){
         let newHeight = parseInt(initialHeight) + parseInt((initialPosY-e.clientY));
         let newWidth = parseInt(initialWidth) + parseInt((e.clientX - initialPosX));
 
-        if (newHeight>=20) {
+        if (newHeight>=20 && bounds.getTop() < e.pageY-offsetTop) {
             test.current.style.top = `${e.pageY-offsetTop}px`;
-            test.current.style.bottom = `${bottom}px`;
+            test.current.style.bottom = `${bottom-window.scrollY}px`;
             resizable.current.style.height = `${newHeight-2}px`;
         }
         
-        if (newWidth>=20) {
-            test.current.style.left = `${left}px`;
+        if (newWidth>=20 && bounds.getRight() < document.documentElement.clientWidth-e.pageX-offsetRight) {
+            test.current.style.left = `${left+window.scrollX}px`;
             test.current.style.right = `${document.documentElement.clientWidth-e.pageX-offsetRight}px`;
             resizable.current.style.width = `${newWidth-2}px`;
         }
@@ -155,15 +171,15 @@ export default function Resizable(props){
         let newHeight = parseInt(initialHeight) + parseInt((initialPosY-e.clientY));
         let newWidth = parseInt(initialWidth) + parseInt((initialPosX-e.clientX));
 
-        if (newHeight>=20) {
+        if (newHeight>=20 && bounds.getTop() < e.pageY-offsetTop) {
             test.current.style.top = `${e.pageY-offsetTop}px`;
-            test.current.style.bottom = `${bottom}px`;
+            test.current.style.bottom = `${bottom-window.scrollY}px`;
             resizable.current.style.height = `${newHeight-2}px`;
         }
 
-        if (newWidth>=20) {
+        if (newWidth>=20 && bounds.getLeft() < e.pageX-offsetLeft) {
             test.current.style.left = `${e.pageX-offsetLeft}px`;
-            test.current.style.right = `${right}px`;
+            test.current.style.right = `${right-window.scrollX}px`;
             resizable.current.style.width = `${newWidth-2}px`;
         }
       
@@ -176,14 +192,14 @@ export default function Resizable(props){
         let newHeight = parseInt(initialHeight) + parseInt((e.clientY-initialPosY));
         let newWidth = parseInt(initialWidth) + parseInt((e.clientX - initialPosX));
         
-        if (newHeight>=20) {
-            test.current.style.top = `${top}px`;
+        if (newHeight>=20 && bounds.getBottom() < document.documentElement.clientHeight-e.pageY-offsetBottom) {
+            test.current.style.top = `${top+window.scrollY}px`;
             test.current.style.bottom = `${document.documentElement.clientHeight-e.pageY-offsetBottom}px`;
             resizable.current.style.height = `${newHeight-2}px`;
         }
 
-        if (newWidth>=20) {
-            test.current.style.left = `${left}px`;
+        if (newWidth>=20 && bounds.getRight() < document.documentElement.clientWidth-e.pageX-offsetRight) {
+            test.current.style.left = `${left+window.scrollX}px`;
             test.current.style.right = `${document.documentElement.clientWidth-e.pageX-offsetRight}px`;
             resizable.current.style.width = `${newWidth-2}px`;
         }
@@ -197,15 +213,15 @@ export default function Resizable(props){
         let newHeight = parseInt(initialHeight) + parseInt((e.clientY-initialPosY));
         let newWidth = parseInt(initialWidth) + parseInt((initialPosX-e.clientX));
 
-        if (newHeight>=20) {
-            test.current.style.top = `${top}px`;
+        if (newHeight>=20 && bounds.getBottom() < document.documentElement.clientHeight-e.pageY-offsetBottom) {
+            test.current.style.top = `${top+window.scrollY}px`;
             test.current.style.bottom = `${document.documentElement.clientHeight-e.pageY-offsetBottom}px`;
             resizable.current.style.height = `${newHeight-2}px`;
         }
 
-        if (newWidth>=20) {
+        if (newWidth>=20 && bounds.getLeft() < e.pageX-offsetLeft) {
             test.current.style.left = `${e.pageX-offsetLeft}px`;
-            test.current.style.right = `${right}px`;
+            test.current.style.right = `${right-window.scrollX}px`;
             resizable.current.style.width = `${newWidth-2}px`;
         }
       
@@ -215,6 +231,7 @@ export default function Resizable(props){
             <div id = 'DraggableNW'
                 onDragStart = {initial} 
                 onDrag      = {resizeNW}
+                onMouseDown={initial}
             />
             <div id = 'DraggableN'
                 onDragStart = {initial} 
@@ -228,7 +245,7 @@ export default function Resizable(props){
                 onDragStart = {initial} 
                 onDrag      = {resizeW}
             />
-            <div id ='Resizable' onDragStart={initial} onDrag={drag} onDragEnd={dragEnd} ref={resizable}/>
+            <div id ='Resizable' onDragStart={initial} onDrag={drag} ref={resizable}/>
             <div id = 'DraggableE'
                 onDragStart = {initial} 
                 onDrag      = {resizeE}
