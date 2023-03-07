@@ -39,7 +39,7 @@ main{
 }
 .form {
     display:grid;
-    grid-template: 120px 40px 1fr/ 1fr 1fr;
+    grid-template: 120px 1fr auto auto/ 1fr 1fr;
     gap:20px;
 }
 .form--textboxes{
@@ -62,8 +62,8 @@ main{
     font-weight: bold;
     text-indent:5px;
     height:35px;
-    width:780px;
-    margin-top:10px;
+    width:740px;
+    margin-right:5px;
 }
 .form--button--textboxes{
     margin-bottom:10px;
@@ -86,7 +86,7 @@ main{
     transform:scale(0.99);
 }
 .form--button{
-    height:150%;
+    height:50px;
     margin-left:15%;
     margin-right:15%;
     grid-column:1/-1;
@@ -103,11 +103,40 @@ main{
 .form--button:active{
     transform:scale(0.99);
 }
+.form--button--removetextbox{
+    font-family: "Karla", sans-serif;
+    border-radius: 5px;
+    background-color: black;
+    color: white;
+    font-size:20px;
+    width: 40px;
+    height: 40px;
+}
+.form--button--removetextbox:hover{
+    background-color:#aba9a9;
+    transition-duration:500ms;
+}
+.form--button--removetextbox:active{
+    transform:scale(0.99);
+}
+.text--input--comp {
+    display:grid;
+    grid-template: 1fr 1fr / 1fr 1fr;
+    height:35px;
+    width:790px;
+    margin-top:10px;
+    margin-bottom:10px;
+    margin-right: 1px;
+}
 .form--image{
     grid-column: 1/-1;
     display:flex;
     justify-content: center;
     margin-top: 10px;
+}
+.form--meme{
+    border-style: solid;
+    border-color:white;
 }
 .Block{
     position:absolute;
@@ -115,92 +144,82 @@ main{
     justify-items:center;
     display: grid;
     grid-template: 20px 1fr 20px/20px 1fr 20px;
+    border-style: dashed;
     z-index: 0;
 }
+.Block:hover {
+    border-style:dashed;
+    border-color: white;
+    z-index: 1;
+}
 #Resizable{
-    border: 1px solid black; 
+    border: 2px solid rgb(179, 179, 179); 
     height: 200px;
     width: 200px;  
 }
 #DraggableN{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: row-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 #DraggableW{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: col-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 #DraggableS{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: row-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 #DraggableE{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: col-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 #DraggableNW{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: nw-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 #DraggableNE{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: ne-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 #DraggableSW{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: sw-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 #DraggableSE{
     background: rgba(1, 1, 1, 0.2);
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
+    border: 1px solid black; 
     cursor: se-resize;
     height: 20px;
     width: 20px;
-    background-color:black;
+    background-color:rgb(255, 255, 255);
 }
 
 

@@ -1,11 +1,10 @@
-import React,{useEffect, useRef} from 'react';
+import React,{useRef} from 'react';
 import eventBus from '../eventbus/EventBus';
 
 export default function TextInput(props){
 
 
     const id = `${props.id}--textbox`
-    const resizableId = `${props.id}--box`
     const textbox = useRef(null);
 
     const rewriteText = () => {
@@ -14,14 +13,22 @@ export default function TextInput(props){
         }
     }
 
-    const addText = (ctx,x,y) => {
-        ctx.textAlign = "center";
-        ctx.font="30px impact";
-        ctx.fillStyle="white";
-        ctx.fillText(textbox.current.value.toUpperCase(),x,y);
+    const preventDefaultBehaviour = (e) => {
+        if (e.which === 13) e.preventDefault();
+    }
+
+    const removeTextBox = (e) => {
+        e.preventDefault();
+        let data = {
+            id:props.id,
+        }
+        eventBus.dispatch('removetextbox',data);
     }
 
     return (
-        <input type="text" className="form--input" placeholder="Text" id={id} ref={textbox} onChange={rewriteText}/>
+        <div className="text--input--comp">
+        <input type="text" className="form--input" placeholder={`TEXTBOX#${props.id}`} id={id} ref={textbox} onChange={rewriteText} onKeyDown={preventDefaultBehaviour} />
+        <button className="form--button--removetextbox" onClick={removeTextBox} >X</button>
+        </div>
     )
 }
