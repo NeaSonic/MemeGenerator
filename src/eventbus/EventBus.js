@@ -1,3 +1,6 @@
+//this is something I wanted to use until I found out React doesn't work very well with custom events, and I'm just using it to dispatch events now.
+
+
 const eventBus = {
 
 

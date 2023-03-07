@@ -5,8 +5,14 @@ import TextInput from "./TextInput";
 export default function Meme(){
 
 
+    
     const [width, setWidth] = useState (1200);
+
+
+    //the hidden file input sets this state object's src to the image received, then, this image's onload is set to the "draw" function on line 135
     const [image, setImage] = useState(new Image());
+
+
     const [resizableList, setResizableList] = useState([]);
     const hiddenFileInput = useRef(null);
     const cvs = useRef(null);
@@ -14,7 +20,7 @@ export default function Meme(){
     const [idCounter, setIdCounter] = useState (2);
     const [imageLoaded, setImageLoaded] = useState(false);
 
-    
+    //gets id from TextInput component and removes component from the state array
     const removeTextboxEvent = useCallback((data) => {
         setResizableList((current)=>
             current.filter((resizable)=>resizable.id!==data.id)
@@ -22,6 +28,7 @@ export default function Meme(){
     },[]);
 
 
+    //clear canvas, redraw the current image to canvas, then go through all resizable components and call fitText on each
     const updateText = useCallback(() => {
         const ctx = cvs.current.getContext('2d');
         ctx.clearRect(0, 0, width, 600);
@@ -43,7 +50,9 @@ export default function Meme(){
         }
     },[image,resizableList,width]);
 
+    //adds text to canvas based on the position and dimensions of the resizable component
     function fitText(ctx,text,x,y,maxWidth,maxHeight){
+
 
         let words = text.split(' ');
         let line = '';
@@ -51,6 +60,9 @@ export default function Meme(){
         let fontSize = 30;
         let metrics = null;
         let fontHeight = null;
+
+
+        //go through each word in the textbox, if any of the words don't fit the resizable in length we keep decreasing the font size untill it fits
         for (let n = 0; n < words.length; n++){
             metrics = ctx.measureText(words[n]);
             while (metrics.width > maxWidth){
@@ -59,6 +71,8 @@ export default function Meme(){
                 metrics = ctx.measureText(words[n]);
             }
         }
+
+        //go through all the words again and create lines that fit the resizable in length
         for (let n = 0; n < words.length; n++){
             let testLine = line + words[n] + ' ';
             metrics = ctx.measureText(testLine);
@@ -72,12 +86,17 @@ export default function Meme(){
             }
         }
         lines.push(line);
+
+
+        //if the lines don't fit the resizable in height, decrease fontsize until they do
         while (lines.length * fontHeight >= maxHeight || fontSize === 1){
             fontSize--;
             ctx.font = `${fontSize}px impact`;
             metrics = ctx.measureText(lines[0]);
             fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
         }
+
+        //add each line of text to canvas
         for (let n = 0; n<lines.length; n++){
             ctx.strokeText(lines[n],x,y);
             ctx.fillText(lines[n],x,y);
@@ -85,6 +104,7 @@ export default function Meme(){
         }
 
     }
+
 
     function downloadMeme(e){
         e.preventDefault();
@@ -111,12 +131,14 @@ export default function Meme(){
         setResizableList((prevResizableList)=>[...prevResizableList, resizable]);
     }
     
+
     function draw() {
         const width = 600*(image.width/image.height);
         setWidth(width);
         setResizableList([]);    
         setImageLoaded(true);
     }
+
 
     function addTextClick(e){
         e.preventDefault();
@@ -130,14 +152,17 @@ export default function Meme(){
         hiddenFileInput.current.click();
     }
     
+    //first render call
     useEffect(()=>{
         image.onload = draw;
     },[])
 
+    //this is just something to use as argument when adding event listeners for custom events, since we need an object to be able to cache the function so we can remove it later.
     const cb = useCallback(
         (e) => removeTextboxEvent(e.detail)
     ,[removeTextboxEvent]);
 
+    //add and remove events listeners every time the state array changes so we have updated values inside our functions
     useEffect(()=>{
         document.addEventListener('removetextbox',cb);
         document.addEventListener('addtext',updateText);
@@ -148,6 +173,8 @@ export default function Meme(){
         }
     },[resizableList])
 
+
+    //reset everything when a new image is uploaded
     useEffect(()=>{
         if(!imageLoaded) return;
         const ctx = cvs.current.getContext("2d");
@@ -183,15 +210,11 @@ export default function Meme(){
                 })}
                 </div>
             </form>
-            <input
-               type="file"
-               accept="image/*"
-               name="meme"
-               style={{display:'none'}}
-               ref={hiddenFileInput}
-               onChange={(event) => {
-               image.src = URL.createObjectURL(event.target.files[0]);
-              }}
+            <input type="file" accept="image/*" name="meme" style={{display:'none'}} ref={hiddenFileInput} 
+              onChange={
+                (event) => { 
+                    image.src = URL.createObjectURL(event.target.files[0]); 
+                }}
             />
         </main>
     )

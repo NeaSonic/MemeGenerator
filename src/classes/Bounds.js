@@ -1,3 +1,5 @@
+//Very simple class to store canvas bounds
+
 export default class Bounds {
 
     #left;

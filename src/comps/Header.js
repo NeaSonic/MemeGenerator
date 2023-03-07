@@ -8,7 +8,7 @@ export default function Header(){
                 src={Xdd}
                 className="header--image"
             />
-            <h2 classname="header--title">Kekw meme generator xDD</h2>
+            <h2 classname="header--title">Meme generator xDD</h2>
         </header>
     )
 }
