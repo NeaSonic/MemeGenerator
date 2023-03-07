@@ -1,4 +1,3 @@
-import './App.css';
 import Header from './comps/Header';
 import Meme from './comps/Meme';
 
