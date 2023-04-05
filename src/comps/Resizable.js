@@ -313,7 +313,7 @@ export default function Resizable(props){
     }
 
     const resizeEndS = (e) => {
-        setResizableE(false);
+        setResizableS(false);
         window.removeEventListener('mousemove',resizeS);
         window.removeEventListener('mouseup',resizeEndS);
     }
